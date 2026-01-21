@@ -41,26 +41,31 @@ def colorize_full_line(s: str) -> str:
     parts = re.split(r'(?=[+-])', s)
     return ''.join(colorize_throw_str(p) for p in parts if p)
 
-def handle_line(s: str) -> float:
+def handle_line(s: str) -> tuple[float, float, float]:
     throws = re.split(r'(?=[+-])', s)
-    res = 0.0
+    res, mn, mx = 0.0, 0.0, 0.0
     for t in throws:
         if not t: continue
-        tmp = handle_throw(t)
+        r, _mn, _mx = handle_throw(t)
         colored_t = colorize_throw_str(t)
-        print(f"{colored_t}[\033[94m{tmp}\033[0m]", end=" ")
-        res += tmp
-    return res
+        print(f"{colored_t}[\033[94m{r}\033[0m]", end=" ")
+        res += r
+        mn += _mn
+        mx += _mx
+    return res, mn, mx
 
-def handle_throw(s: str) -> float:
+def handle_throw(s: str) -> tuple[float, float, float]:
     random.seed(time.time())
+
+    mn, mx = 0, 0
+
     sign = 1
     if s and s[0] in "+-":
         sign = 1 if s[0] == "+" else -1
         s = s[1:]
 
     if not s:
-        return 0.0
+        return 0.0, 0.0, 0.0
 
     if s.startswith('d'):
         s = "1" + s
@@ -77,13 +82,19 @@ def handle_throw(s: str) -> float:
     else:
         n, d = int(clean_s), 1
 
+    mn = n  # все броски единица
+    mx = n*d  # все броски максимум
+    if sign == -1:
+        mn = -n*d
+        mx = -n
+
     rolls = [sum(random.randint(1, d) for _ in range(n)) for _ in range(1 + bool(best or worst))]
 
     if best > worst:
-        return max(rolls) * sign * modifier
+        return max(rolls) * sign * modifier, mn, mx
     elif worst > best:
-        return min(rolls) * sign * modifier
-    return rolls[0] * sign * modifier
+        return min(rolls) * sign * modifier, mn, mx
+    return rolls[0] * sign * modifier, mn, mx
 
 def main():
     global history
@@ -109,8 +120,21 @@ def main():
         if not line:
             continue
 
-        res = handle_line(line)
-        print(f"\n\033[1;33m=\033[0m \033[1;94m{res}\033[0m\n")
+        res, mn, mx = handle_line(line)
+
+        color_code = "\033[31m"  # красный по умолчанию
+        if mx > mn:
+            range_span = mx - mn
+            lower_bound = mn + range_span / 3
+            upper_bound = mn + 2 * range_span / 3
+
+            if res > upper_bound:
+                color_code = "\033[32m"  # зелёный (верхняя треть)
+            elif res > lower_bound:
+                color_code = "\033[33m"  # жёлтый (средняя треть)
+
+        result_str = f"\n\033[1;33m=\033[0m {color_code}{res}\033[0m \033[34m[{mn} ... {mx}]\033[0m\n"
+        print(result_str)
 
         if line in history:
             history.remove(line)
