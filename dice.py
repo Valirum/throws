@@ -48,6 +48,7 @@ def handle_line(s: str) -> tuple[float, float, float]:
         if not t: continue
         r, _mn, _mx = handle_throw(t)
         colored_t = colorize_throw_str(t)
+        if r == int(r): r = int(r)
         print(f"{colored_t}[\033[94m{r}\033[0m]", end=" ")
         res += r
         mn += _mn
@@ -91,10 +92,10 @@ def handle_throw(s: str) -> tuple[float, float, float]:
     rolls = [sum(random.randint(1, d) for _ in range(n)) for _ in range(1 + bool(best or worst))]
 
     if best > worst:
-        return max(rolls) * sign * modifier, mn, mx
+        return max(rolls) * sign * modifier, mn * modifier, mx * modifier
     elif worst > best:
-        return min(rolls) * sign * modifier, mn, mx
-    return rolls[0] * sign * modifier, mn, mx
+        return min(rolls) * sign * modifier, mn * modifier, mx * modifier
+    return rolls[0] * sign * modifier, mn * modifier, mx * modifier
 
 def main():
     global history
@@ -121,6 +122,9 @@ def main():
             continue
 
         res, mn, mx = handle_line(line)
+        if res == int(res): res = int(res)
+        if mn == int(mn): mn = int(mn)
+        if mx == int(mx): mx = int(mx)
 
         color_code = "\033[31m"  # красный по умолчанию
         if mx > mn:
