@@ -3,8 +3,8 @@
 import random
 import re
 import time
-
-history = list()
+import sys
+import argparse
 
 def colorize_symbols(symbols: str) -> str:
     result = ""
@@ -49,6 +49,7 @@ def handle_line(s: str) -> tuple[float, float, float]:
         r, _mn, _mx = handle_throw(t)
         colored_t = colorize_throw_str(t)
         if r == int(r): r = int(r)
+        # В одиночном режиме выводим сразу, в интерактивном тоже
         print(f"{colored_t}[\033[94m{r}\033[0m]", end=" ")
         res += r
         mn += _mn
@@ -97,8 +98,50 @@ def handle_throw(s: str) -> tuple[float, float, float]:
         return min(rolls) * sign * modifier, mn * modifier, mx * modifier
     return rolls[0] * sign * modifier, mn * modifier, mx * modifier
 
+def print_result(res, mn, mx):
+    if res == int(res): res = int(res)
+    if mn == int(mn): mn = int(mn)
+    if mx == int(mx): mx = int(mx)
+
+    color_code = "\033[31m"  # красный по умолчанию
+    if mx > mn:
+        range_span = mx - mn
+        lower_bound = mn + range_span / 3
+        upper_bound = mn + 2 * range_span / 3
+
+        if res > upper_bound:
+            color_code = "\033[32m"  # зелёный (верхняя треть)
+        elif res > lower_bound:
+            color_code = "\033[33m"  # жёлтый (средняя треть)
+
+    result_str = f"\n\033[1;33m=\033[0m {color_code}{res}\033[0m \033[34m[{mn} ... {mx}]\033[0m\n"
+    print(result_str)
+
 def main():
-    global history
+    # Инициализация священного интерфейса аргументов
+    parser = argparse.ArgumentParser(
+        description="Эмулятор бросков костей для НРИ.",
+        formatter_class=argparse.RawTextHelpFormatter
+    )
+    parser.add_argument(
+        '-s', '--single', 
+        type=str, 
+        metavar='<str>',
+        help='Выполнить единократный бросок для указанной строки'
+    )
+    
+    args = parser.parse_args()
+
+    # Если вознесена молитва одиночного броска
+    if args.single:
+        line = args.single.replace(' ', '').lower().replace("к", "d")
+        if line:
+            res, mn, mx = handle_line(line)
+            print_result(res, mn, mx)
+        sys.exit(0)
+
+    # Иначе входим в цикл ожидания команд мирян
+    history = list()
     while True:
         if history:
             print("\033[2mИстория бросков:\033[0m")
@@ -122,23 +165,7 @@ def main():
             continue
 
         res, mn, mx = handle_line(line)
-        if res == int(res): res = int(res)
-        if mn == int(mn): mn = int(mn)
-        if mx == int(mx): mx = int(mx)
-
-        color_code = "\033[31m"  # красный по умолчанию
-        if mx > mn:
-            range_span = mx - mn
-            lower_bound = mn + range_span / 3
-            upper_bound = mn + 2 * range_span / 3
-
-            if res > upper_bound:
-                color_code = "\033[32m"  # зелёный (верхняя треть)
-            elif res > lower_bound:
-                color_code = "\033[33m"  # жёлтый (средняя треть)
-
-        result_str = f"\n\033[1;33m=\033[0m {color_code}{res}\033[0m \033[34m[{mn} ... {mx}]\033[0m\n"
-        print(result_str)
+        print_result(res, mn, mx)
 
         if line in history:
             history.remove(line)
