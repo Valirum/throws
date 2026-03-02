@@ -1,0 +1,282 @@
+:root {
+    --bg-primary: #0d1117;
+    --bg-secondary: #161b22;
+    --border-color: #30363d;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --accent: #58a6ff;
+    --accent-hover: #79c0ff;
+    --danger: #da3633;
+    --danger-hover: #f85149;
+    
+    /* Цветовая дифференциация секторов */
+    --tier-low: #f85149;
+    --tier-mid: #d29922;
+    --tier-high: #3fb950;
+    
+    --input-bg: #0d1117;
+    --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+/* --- Панель ввода --- */
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+/* Справка (знак вопроса) */
+.tooltip-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: help;
+    flex-shrink: 0;
+}
+
+.help-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    border: 1px solid var(--text-secondary);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+
+.tooltip-wrapper:hover .help-icon {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.tooltip-text {
+    visibility: hidden;
+    width: 240px;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    text-align: left;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 12px;
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 10;
+    font-size: 11px;
+    line-height: 1.5;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    font-family: var(--font-mono);
+}
+
+.tooltip-text::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: var(--border-color) transparent transparent transparent;
+}
+
+.tooltip-wrapper:hover .tooltip-text {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Поле ввода */
+#diceInput {
+    flex: 1;
+    background-color: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-primary);
+    padding: 10px 12px;
+    font-family: var(--font-mono);
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+    min-width: 0;
+}
+
+#diceInput:focus {
+    border-color: var(--accent);
+}
+
+/* Кнопка Roll */
+#rollBtn {
+    background-color: #238636;
+    color: #fff;
+    border: 1px solid rgba(240, 246, 252, 0.1);
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+#rollBtn:hover {
+    background-color: #2ea043;
+}
+
+#rollBtn:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* --- Отображение результата --- */
+#resultArea {
+    text-align: center;
+    margin-bottom: 32px;
+    padding: 20px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: border-color 0.3s;
+}
+
+#resultValue {
+    font-size: 4rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 8px;
+    font-family: var(--font-mono);
+    transition: color 0.2s;
+}
+
+#resultRange {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    font-family: var(--font-mono);
+}
+
+.error-msg {
+    color: #f85149;
+    font-size: 0.9rem;
+    margin-top: 8px;
+    display: none;
+    text-align: center;
+}
+
+/* --- История --- */
+#historyContainer {
+    border-top: 1px solid var(--border-color);
+    padding-top: 16px;
+    overflow-x: hidden; /* ФИКС: Скрываем горизонтальный скролл */
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.history-title {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Кнопка очистки истории */
+.clear-btn {
+    background: transparent;
+    border: 1px solid var(--danger);
+    color: var(--danger);
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: var(--font-mono);
+}
+
+.clear-btn:hover {
+    background: var(--danger);
+    color: #fff;
+}
+
+#historyList {
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 4px; /* Компенсация сдвига hover */
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    background-color: rgba(110, 118, 129, 0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    transform: translateZ(0);
+    will-change: transform;
+}
+
+.history-item:hover {
+    background-color: rgba(110, 118, 129, 0.3);
+    transform: translateX(4px);
+}
+
+.history-query {
+    color: var(--accent);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding-right: 8px;
+}
+
+.history-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-left: 12px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Скроллбар */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }

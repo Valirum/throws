@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Протокол Броска Костей // Омниссия</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+
+<div class="container">
+    <!-- Панель управления -->
+    <div class="input-group">
+        <!-- Справка -->
+        <div class="tooltip-wrapper">
+            <div class="help-icon">?</div>
+            <div class="tooltip-text">
+                <strong>Синтаксис:</strong><br>
+                MdN [оператор] [K]<br><br>
+                <strong>Операторы:</strong><br>
+                + / - : Арифметика<br>
+                ! : Преимущество (max)<br>
+                ? : Помеха (min)<br>
+                * : Удвоение (x2)<br>
+                / : Половина (/2)<br><br>
+                <strong>Примеры:</strong><br>
+                2d6+3 (Базовый)<br>
+                1d20!*+5 (Сложный)
+            </div>
+        </div>
+
+        <!-- Ввод -->
+        <input type="text" id="diceInput" placeholder="Пример: 2d6+3!*+5" autocomplete="off" autofocus>
+
+        <!-- Кнопка -->
+        <button id="rollBtn">Roll</button>
+    </div>
+
+    <!-- Ошибки -->
+    <div id="errorMsg" class="error-msg"></div>
+
+    <!-- Результат -->
+    <div id="resultArea">
+        <div id="resultValue">-</div>
+        <div id="resultRange">[min: max]</div>
+    </div>
+
+    <!-- История -->
+    <div id="historyContainer">
+        <div class="history-header">
+            <div class="history-title">История бросков</div>
+            <button id="clearHistoryBtn" class="clear-btn" title="Очистить память когитатора">Очистить</button>
+        </div>
+        <div id="historyList">
+            <!-- Элементы будут добавлены через JS -->
+        </div>
+    </div>
+</div>
+
+<script src="/static/js/script.js"></script>
+</body>
+</html>
